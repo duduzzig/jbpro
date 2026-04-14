@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="description" content="Gerador de Milhares PRO - Análise e Palpites da Sorte">
+    <title>Painel PRO | Gerador Neon & IA</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Chosen Palette: Deep Matrix Green (#020a07) & Neon Mint (#00ff88) with Golden Accents -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap');
+
+        body {
+            background-color: #020a07; /* Very dark green/black */
+            font-family: 'Inter', system-ui, sans-serif;
+            color: #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            padding: 10px;
+        }
+
+        /* Custom Scrollbar for dark theme */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #020a07; }
+        ::-webkit-scrollbar-thumb { background: #004d2a; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #00ff88; }
+
+        /* Neon Glow Effects */
+        .glow-border {
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.05);
+        }
+        .glow-border-active {
+            border: 1px solid #00ff88;
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.2), inset 0 0 10px rgba(0, 255, 136, 0.1);
+        }
+        .text-neon {
+            color: #00ff88;
+            text-shadow: 0 0 8px rgba(0, 255, 136, 0.4);
+        }
+
+        /* Toggle Buttons / Pills */
+        .pill-btn {
+            background: #04140d;
+            border: 1px solid #00331c;
+            color: #88aa99;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .pill-btn.active {
+            background: rgba(0, 255, 136, 0.1);
+            border-color: #00ff88;
+            color: #00ff88;
+            box-shadow: inset 0 0 10px rgba(0, 255, 136, 0.1);
+        }
+        
+        /* Action Buttons */
+        .action-btn-green {
+            background: #04140d;
+            border: 1px solid #004d2a;
+            color: #00ff88;
+            transition: all 0.2s;
+        }
+        .action-btn-green:active {
+            transform: scale(0.98);
+            background: rgba(0, 255, 136, 0.1);
+            border-color: #00ff88;
+        }
+        .action-btn-green:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .action-btn-red {
+            background: #04140d;
+            border: 1px solid #4d001a;
+            color: #ff3366;
+            transition: all 0.2s;
+        }
+        .action-btn-red:active {
+            transform: scale(0.98);
+            background: rgba(255, 51, 102, 0.1);
+            border-color: #ff3366;
+        }
+
+        /* Golden Banner */
+        .gold-banner {
+            background: linear-gradient(135deg, #fbbf24, #d97706);
+            color: #451a03;
+            box-shadow: 0 10px 25px rgba(217, 119, 6, 0.2);
+        }
+
+        /* Input specific */
+        .neon-input {
+            background: #020a07;
+            border: 1px solid #00331c;
+            color: #00ff88;
+            transition: all 0.2s;
+        }
+        .neon-input:focus {
+            outline: none;
+            border-color: #00ff88;
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.1);
+        }
+
+        /* Animations */
+        @keyframes pulse-green {
+            0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 5px #00ff88; }
+            50% { opacity: 0.5; transform: scale(1.2); box-shadow: 0 0 10px #00ff88; }
+        }
+        .dot-online {
+            width: 8px; height: 8px; background: #00ff88; border-radius: 50%;
+            display: inline-block; animation: pulse-green 1.5s infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .spinner {
+            width: 16px; height: 16px; border: 2px solid #00ff88; border-top-color: transparent;
+            border-radius: 50%; animation: spin 0.8s linear infinite; display: inline-block;
+        }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade { animation: fadeUp 0.3s ease-out forwards; }
+
+        /* Hide scrollbar for pills container but allow scroll */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Chart constraints */
+        .chart-container { position: relative; width: 100%; height: 250px; }
+    </style>
+</head>
+<body class="items-center sm:py-6">
+
+    <div class="w-full max-w-[500px] flex flex-col gap-4">
+        
+        <!-- Navbar -->
+        <nav class="bg-[#05140d] glow-border rounded-full p-2 flex justify-between items-center px-4 w-full">
+            <div class="font-extrabold text-sm text-[#00ff88] hidden sm:block mr-2">JB PRO</div>
+            <div class="flex gap-1 sm:gap-2 overflow-x-auto no-scrollbar w-full sm:w-auto">
+                <button onclick="changeTab('gerador')" id="tab-gerador" class="pill-btn active px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1">
+                    ⚡ GERAR
+                </button>
+                <button onclick="changeTab('sonhos')" id="tab-sonhos" class="pill-btn px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1">
+                    ✨ SONHOS
+                </button>
+                <button onclick="changeTab('estatisticas')" id="tab-estatisticas" class="pill-btn px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1">
+                    📊 DADOS
+                </button>
+                <button onclick="changeTab('tabela')" id="tab-tabela" class="pill-btn px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1">
+                    📜 TABELA
+                </button>
+            </div>
+        </nav>
+
+        <!-- SEC: GERADOR -->
+        <main id="sec-gerador" class="w-full animate-fade">
+            <!-- Main Card -->
+            <div class="bg-[#05140d] glow-border rounded-3xl p-4 sm:p-5 flex flex-col gap-5">
+                
+                <!-- Header -->
+                <div class="text-center">
+                    <h1 class="text-lg font-black text-[#00ff88] tracking-widest mb-2 text-neon flex items-center justify-center gap-2">
+                        ⚡ GERADOR PRO ⚡
+                    </h1>
+                    <div class="inline-flex items-center gap-1 bg-[#020a07] border border-[#00ff88]/30 rounded-full px-3 py-1 text-[10px] sm:text-xs text-[#88aa99]">
+                        <span>🔮 algoritmo preditivo</span>
+                        <span>•</span>
+                        <span>grupos atrasados</span>
+                    </div>
+                </div>
+
+                <!-- Status Bar -->
+                <div class="bg-[#020a07] glow-border rounded-full px-4 py-2 flex justify-between items-center text-xs font-semibold">
+                    <span class="flex items-center gap-2 text-[#e2e8f0]">
+                        <span class="dot-online"></span> <span id="online-count">22</span> online agora
+                    </span>
+                    <span class="text-[#e2e8f0]">
+                        🎲 <span id="daily-count">1.2k</span> palpites hoje
+                    </span>
+                </div>
+
+                <!-- Extrações/Loterias -->
+                <div class="flex flex-col gap-2">
+                    <span class="text-[11px] font-bold text-[#88aa99] flex items-center gap-1 uppercase tracking-wider">📍 1. Selecione a Extração</span>
+                    <div id="loteria-filters" class="flex gap-2 overflow-x-auto no-scrollbar pb-1 -mx-1 px-1">
+                        <button onclick="setLoteria('todas')" id="lot-todas" class="pill-btn active px-4 py-1.5 rounded-full text-xs font-bold">🇧🇷 Brasil (Geral)</button>
+                        <button onclick="setLoteria('rio')" id="lot-rio" class="pill-btn px-4 py-1.5 rounded-full text-xs font-bold">🏖️ Rio (PT)</button>
+                        <button onclick="setLoteria('sp')" id="lot-sp" class="pill-btn px-4 py-1.5 rounded-full text-xs font-bold">🏙️ São Paulo</button>
+                        <button onclick="setLoteria('look')" id="lot-look" class="pill-btn px-4 py-1.5 rounded-full text-xs font-bold">🤠 Look / Goiás</button>
+                        <button onclick="setLoteria('lotep')" id="lot-lotep" class="pill-btn px-4 py-1.5 rounded-full text-xs font-bold">☀️ Lotep PB</button>
+                        <button onclick="setLoteria('bahia')" id="lot-bahia" class="pill-btn px-4 py-1.5 rounded-full text-xs font-bold">🌴 Bahia</button>
+                        <button onclick="setLoteria('nacional')" id="lot-nacional" class="pill-btn px-4 py-1.5 rounded-full text-xs font-bold">⭐ Nacional</button>
+                        <button onclick="setLoteria('lotece')" id="lot-lotece" class="pill-btn px-4 py-1.5 rounded-full text-xs font-bold">🌊 Lotece</button>
+                    </div>
+                </div>
+
+                <div class="h-px w-full bg-[#00331c] my-1"></div>
+
+                <!-- Modos Principais -->
+                <div class="flex flex-col gap-2">
+                    <span class="text-[11px] font-bold text-[#88aa99] flex items-center gap-1 uppercase tracking-wider">🎯 2. Modo de Geração</span>
+                    <div class="flex gap-2 w-full">
+                        <button onclick="setMode('aleatorio')" id="mode-aleatorio" class="pill-btn active flex-1 py-2 rounded-xl text-xs font-bold">
+                            🎲 Aleatório
+                        </button>
+                        <button onclick="setMode('bicho')" id="mode-bicho" class="pill-btn flex-1 py-2 rounded-xl text-xs font-bold">
+                            🐾 Por Bicho
+                        </button>
+                        <button onclick="setMode('atrasados')" id="mode-atrasados" class="pill-btn flex-1 py-2 rounded-xl text-xs font-bold">
+                            🔥 Atrasados
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Sub-Filtros -->
+                <div id="sub-filters" class="flex gap-2 overflow-x-auto no-scrollbar pb-1 -mx-1 px-1">
+                    <button onclick="setFilter('todos')" id="filt-todos" class="pill-btn active px-4 py-1.5 rounded-full text-xs font-bold">Todos os grupos</button>
+                    <button onclick="setFilter('quentes')" id="filt-quentes" class="pill-btn px-4 py-1.5 rounded-full text-xs font-bold">🔥 Quentes</button>
+                    <button onclick="setFilter('atrasados')" id="filt-atrasados" class="pill-btn px-4 py-1.5 rounded-full text-xs font-bold">⏳ Atrasados</button>
+                    <button onclick="setFilter('pares')" id="filt-pares" class="pill-btn px-4 py-1.5 rounded-full text-xs font-bold">1️⃣ Grupos pares</button>
+                    <button onclick="setFilter('impares')" id="filt-impares" class="pill-btn px-4 py-1.5 rounded-full text-xs font-bold">3️⃣ Grupos ímpares</button>
+                </div>
+
+                <!-- Animal Grid -->
+                <div id="animal-grid-container" class="hidden">
+                    <div class="grid grid-cols-5 gap-1.5 max-h-[160px] overflow-y-auto no-scrollbar" id="animaisGrid">
+                        <!-- JS injects here -->
+                    </div>
+                </div>
+
+                <!-- Quantity Selector -->
+                <div class="bg-[#020a07] border border-[#00331c] rounded-2xl p-3 flex justify-between items-center mt-2">
+                    <span class="text-xs font-bold text-[#88aa99] flex items-center gap-1">🔢 Quantos palpites?</span>
+                    <div class="flex items-center bg-[#05140d] border border-[#00331c] rounded-full p-1">
+                        <button onclick="changeQtd(-1)" class="w-8 h-8 rounded-full text-[#00ff88] font-bold text-lg hover:bg-[#00ff88]/10">−</button>
+                        <input type="number" id="quantidade" value="5" readonly class="w-8 text-center bg-transparent border-none text-[#00ff88] font-bold text-sm outline-none">
+                        <button onclick="changeQtd(1)" class="w-8 h-8 rounded-full text-[#00ff88] font-bold text-lg hover:bg-[#00ff88]/10">+</button>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <button id="gerarBtn" class="action-btn-green w-full py-3.5 rounded-xl font-bold text-sm flex justify-center items-center gap-2">
+                    ✨ GERAR MILHARES DA SORTE ✨
+                </button>
+                
+                <button onclick="window.open('https://apostanacional.net/convite/W5IAX', '_blank')" class="action-btn-red w-full py-3.5 rounded-xl font-bold text-sm flex justify-center items-center gap-2">
+                    🙏 FAZER MINHA FÉ AGORA 🙏
+                </button>
+
+                <!-- Results Box -->
+                <div class="bg-[#020a07] border border-[#00331c] rounded-2xl p-4">
+                    <div class="text-[10px] font-bold text-[#00ff88] mb-4 uppercase tracking-wider flex items-center gap-1">
+                        🍀 Seus palpites premiados
+                    </div>
+                    
+                    <div id="palpitesWrapper" class="min-h-[80px] flex flex-wrap gap-2 items-center justify-center mb-4">
+                        <span class="text-[#475569] text-xs">Clique em "GERAR" para ver seus milhares</span>
+                    </div>
+
+                    <button id="copiarBtn" class="w-full bg-[#05140d] hover:bg-[#00ff88]/10 border border-[#00331c] hover:border-[#00ff88]/50 text-[#88aa99] hover:text-[#00ff88] py-2.5 rounded-lg text-[11px] font-bold transition-all flex items-center justify-center gap-2">
+                        📋 COPIAR TODOS OS PALPITES
+                    </button>
+                </div>
+            </div>
+
+            <!-- Golden Banner -->
+            <div class="gold-banner mt-4 rounded-2xl p-4 flex justify-between items-center">
+                <div>
+                    <div class="text-[10px] font-bold uppercase tracking-wider opacity-80 mb-1 flex items-center gap-1">
+                        ⭐ Número da Sorte do Dia
+                    </div>
+                    <div id="numero-dia" class="text-3xl font-black tracking-widest">6148</div>
+                </div>
+                <button onclick="gerarNumeroDia()" class="bg-black/10 hover:bg-black/20 border border-black/20 px-3 py-1.5 rounded-full text-xs font-bold transition-colors flex items-center gap-1">
+                    ↻ Novo
+                </button>
+            </div>
+        </main>
+
+        <!-- SEC: SONHOS (Gemini AI Feature) -->
+        <main id="sec-sonhos" class="w-full hidden animate-fade">
+            <div class="bg-[#05140d] glow-border rounded-3xl p-5 flex flex-col gap-5">
+                <div class="text-center">
+                    <h1 class="text-lg font-black text-[#00ff88] tracking-widest mb-2 text-neon flex items-center justify-center gap-2">
+                        💭 ORÁCULO DE SONHOS 💭
+                    </h1>
+                    <div class="inline-flex items-center gap-1 bg-[#020a07] border border-[#00ff88]/30 rounded-full px-3 py-1 text-[10px] sm:text-xs text-[#88aa99]">
+                        <span>Powered by Gemini AI</span>
+                        <span>✨</span>
+                    </div>
+                </div>
+                
+                <p class="text-[11px] text-[#88aa99] text-center mb-2">
+                    Descreva o seu sonho e a Inteligência Artificial revelará o seu animal da sorte e os números místicos.
+                </p>
+
+                <textarea id="dream-input" rows="4" class="neon-input w-full rounded-xl p-3 text-sm resize-none" placeholder="Com o que você sonhou hoje? Ex: Sonhei com muita água e uma chave caindo num poço..."></textarea>
+
+                <button id="btn-decifrar" onclick="decifrarSonho()" class="action-btn-green w-full py-3.5 rounded-xl font-bold text-sm flex justify-center items-center gap-2">
+                    ✨ DECIFRAR MEU SONHO ✨
+                </button>
+
+                <!-- AI Result Area -->
+                <div id="dream-result-area" class="hidden flex flex-col gap-3 mt-2">
+                    <div class="bg-[#020a07] border border-[#00ff88]/50 rounded-2xl p-4 relative overflow-hidden">
+                        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#00ff88] to-transparent opacity-50"></div>
+                        
+                        <div class="flex justify-between items-start mb-3">
+                            <div>
+                                <div class="text-[10px] font-bold text-[#88aa99] uppercase tracking-wider mb-1">O Animal Revelado</div>
+                                <div class="text-xl font-black text-[#00ff88] uppercase" id="dream-animal-name">--</div>
+                            </div>
+                            <div class="text-4xl" id="dream-animal-emoji">🔮</div>
+                        </div>
+
+                        <p class="text-[11px] text-[#e2e8f0] italic border-l-2 border-[#00331c] pl-3 py-1 mb-4" id="dream-explanation">
+                            Aguardando seu sonho...
+                        </p>
+
+                        <div class="text-[10px] font-bold text-[#00ff88] uppercase tracking-wider mb-2 text-center">Milhar Mística Sugerida</div>
+                        <div class="flex justify-center">
+                            <div class="bg-[#00ff88]/10 border border-[#00ff88] text-[#00ff88] px-6 py-2 rounded-xl font-mono font-black text-2xl tracking-widest shadow-[0_0_15px_rgba(0,255,136,0.2)]" id="dream-lucky-number">
+                                0000
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button onclick="copiarPalpiteSonho()" class="w-full bg-[#05140d] hover:bg-[#00ff88]/10 border border-[#00331c] text-[#88aa99] hover:text-[#00ff88] py-2 rounded-lg text-[11px] font-bold transition-all">
+                        📋 COPIAR MILHAR
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <!-- SEC: ESTATÍSTICAS -->
+        <main id="sec-estatisticas" class="w-full hidden animate-fade">
+            <div class="bg-[#05140d] glow-border rounded-3xl p-5 flex flex-col gap-6">
+                <div>
+                    <h2 class="text-lg font-bold text-[#00ff88] mb-1">🔥 Mais Atrasados</h2>
+                    <p class="text-[11px] text-[#88aa99] mb-3" id="stats-desc">Dias sem sair no 1º prêmio. (Dados ajustáveis por Extração na aba Gerar)</p>
+                    <div class="bg-[#020a07] border border-[#00331c] rounded-xl p-3">
+                        <div class="chart-container"><canvas id="chartAtrasados"></canvas></div>
+                    </div>
+                </div>
+                <div>
+                    <h2 class="text-lg font-bold text-[#00ff88] mb-1">📈 Grupos Quentes</h2>
+                    <p class="text-[11px] text-[#88aa99] mb-3">Frequência dos últimos 30 sorteios.</p>
+                    <div class="bg-[#020a07] border border-[#00331c] rounded-xl p-3">
+                        <div class="chart-container"><canvas id="chartQuentes"></canvas></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- SEC: TABELA -->
+        <main id="sec-tabela" class="w-full hidden animate-fade">
+            <div class="bg-[#05140d] glow-border rounded-3xl p-5">
+                <h2 class="text-lg font-bold text-[#00ff88] mb-1">📜 Tabela Oficial</h2>
+                <p class="text-[11px] text-[#88aa99] mb-4">Guia rápido dos 25 grupos e dezenas.</p>
+                <div id="grid-tabela-ref" class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </main>
+
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 bg-[#00ff88] text-[#020a07] px-4 py-2 rounded-full font-bold text-xs opacity-0 transition-opacity duration-300 pointer-events-none z-50 shadow-[0_0_15px_rgba(0,255,136,0.5)] flex items-center gap-2 w-max max-w-[90vw]">
+        <span>✅</span> <span id="toast-msg">Sucesso!</span>
+    </div>
+
+    <script>
+        // --- API KEY CONFIGURATION ---
+        const apiKey = ""; // API Key is injected here at runtime
+        
+        // --- DATA ---
+        const tabelaBichos = [
+            { grupo: 1, nome: "Avestruz", emoji: "🦅", dezenas: ["01", "02", "03", "04"] },
+            { grupo: 2, nome: "Águia", emoji: "🦅", dezenas: ["05", "06", "07", "08"] },
+            { grupo: 3, nome: "Burro", emoji: "🐴", dezenas: ["09", "10", "11", "12"] },
+            { grupo: 4, nome: "Borboleta", emoji: "🦋", dezenas: ["13", "14", "15", "16"] },
+            { grupo: 5, nome: "Cachorro", emoji: "🐶", dezenas: ["17", "18", "19", "20"] },
+            { grupo: 6, nome: "Cabra", emoji: "🐐", dezenas: ["21", "22", "23", "24"] },
+            { grupo: 7, nome: "Carneiro", emoji: "🐏", dezenas: ["25", "26", "27", "28"] },
+            { grupo: 8, nome: "Camelo", emoji: "🐫", dezenas: ["29", "30", "31", "32"] },
+            { grupo: 9, nome: "Cobra", emoji: "🐍", dezenas: ["33", "34", "35", "36"] },
+            { grupo: 10, nome: "Coelho", emoji: "🐇", dezenas: ["37", "38", "39", "40"] },
+            { grupo: 11, nome: "Cavalo", emoji: "🐎", dezenas: ["41", "42", "43", "44"] },
+            { grupo: 12, nome: "Elefante", emoji: "🐘", dezenas: ["45", "46", "47", "48"] },
+            { grupo: 13, nome: "Galo", emoji: "🐓", dezenas: ["49", "50", "51", "52"] },
+            { grupo: 14, nome: "Gato", emoji: "🐈", dezenas: ["53", "54", "55", "56"] },
+            { grupo: 15, nome: "Jacaré", emoji: "🐊", dezenas: ["57", "58", "59", "60"] },
+            { grupo: 16, nome: "Leão", emoji: "🦁", dezenas: ["61", "62", "63", "64"] },
+            { grupo: 17, nome: "Macaco", emoji: "🐒", dezenas: ["65", "66", "67", "68"] },
+            { grupo: 18, nome: "Porco", emoji: "🐷", dezenas: ["69", "70", "71", "72"] },
+            { grupo: 19, nome: "Pavão", emoji: "🦚", dezenas: ["73", "74", "75", "76"] },
+            { grupo: 20, nome: "Peru", emoji: "🦃", dezenas: ["77", "78", "79", "80"] },
+            { grupo: 21, nome: "Touro", emoji: "🐂", dezenas: ["81", "82", "83", "84"] },
+            { grupo: 22, nome: "Tigre", emoji: "🐅", dezenas: ["85", "86", "87", "88"] },
+            { grupo: 23, nome: "Urso", emoji: "🐻", dezenas: ["89", "90", "91", "92"] },
+            { grupo: 24, nome: "Veado", emoji: "🦌", dezenas: ["93", "94", "95", "96"] },
+            { grupo: 25, nome: "Vaca", emoji: "🐄", dezenas: ["97", "98", "99", "00"] }
+        ];
+
+        const gruposAtrasados = [3, 15, 19, 2, 8];
+        const gruposQuentes = [5, 14, 21, 25, 1];
+
+        const nomesLoterias = {
+            'todas': 'Nacional / Geral',
+            'rio': 'PT-Rio',
+            'sp': 'São Paulo',
+            'look': 'Look Goiás',
+            'lotep': 'Lotep PB',
+            'bahia': 'Bahia',
+            'nacional': 'Nacional',
+            'lotece': 'Lotece'
+        };
+
+        // --- STATE ---
+        let loteriaSelecionada = 'todas';
+        let genMode = 'aleatorio'; 
+        let genFilter = 'todos'; 
+        let bichoSelecionadoId = null;
+        let ultimosPalpites = [];
+        let ultimoPalpiteSonho = "";
+        let chartsInit = false;
+
+        // --- UI UPDATES ---
+        function changeTab(tab) {
+            ['gerador', 'sonhos', 'estatisticas', 'tabela'].forEach(t => {
+                document.getElementById(`sec-${t}`).classList.add('hidden');
+                document.getElementById(`tab-${t}`).classList.remove('active', 'glow-border-active');
+            });
+            document.getElementById(`sec-${tab}`).classList.remove('hidden');
+            document.getElementById(`tab-${tab}`).classList.add('active', 'glow-border-active');
+            
+            if (tab === 'estatisticas') {
+                document.getElementById('stats-desc').innerText = `Dias sem sair no 1º prêmio na extração: ${nomesLoterias[loteriaSelecionada]}.`;
+                if (!chartsInit) {
+                    renderCharts(); chartsInit = true;
+                }
+            }
+            if (tab === 'tabela' && document.getElementById('grid-tabela-ref').children.length === 0) {
+                renderTabelaCompleta();
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function setLoteria(id) {
+            loteriaSelecionada = id;
+            ['todas', 'rio', 'sp', 'look', 'lotep', 'bahia', 'nacional', 'lotece'].forEach(l => {
+                document.getElementById(`lot-${l}`).classList.remove('active');
+            });
+            document.getElementById(`lot-${id}`).classList.add('active');
+        }
+
+        function setMode(mode) {
+            genMode = mode;
+            ['aleatorio', 'bicho', 'atrasados'].forEach(m => {
+                document.getElementById(`mode-${m}`).classList.remove('active', 'glow-border-active');
+            });
+            document.getElementById(`mode-${mode}`).classList.add('active', 'glow-border-active');
+
+            const subFilters = document.getElementById('sub-filters');
+            const animalGrid = document.getElementById('animal-grid-container');
+
+            if (mode === 'bicho') {
+                subFilters.classList.add('hidden');
+                animalGrid.classList.remove('hidden');
+                renderAnimalGrid();
+            } else if (mode === 'atrasados') {
+                subFilters.classList.add('hidden');
+                animalGrid.classList.add('hidden');
+                genFilter = 'atrasados'; 
+            } else { 
+                subFilters.classList.remove('hidden');
+                animalGrid.classList.add('hidden');
+                setFilter('todos'); 
+            }
+        }
+
+        function setFilter(filter) {
+            if (genMode !== 'aleatorio') return;
+            genFilter = filter;
+            ['todos', 'quentes', 'atrasados', 'pares', 'impares'].forEach(f => {
+                document.getElementById(`filt-${f}`).classList.remove('active');
+            });
+            document.getElementById(`filt-${filter}`).classList.add('active');
+        }
+
+        function changeQtd(val) {
+            const el = document.getElementById('quantidade');
+            let q = parseInt(el.value) + val;
+            if (q >= 1 && q <= 30) el.value = q;
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = msg;
+            toast.style.opacity = '1';
+            setTimeout(() => toast.style.opacity = '0', 2500);
+        }
+
+        // --- GEMINI API HELPERS ---
+        async function fetchWithRetry(url, options, retries = 5) {
+            const delays = [1000, 2000, 4000, 8000, 16000];
+            for (let i = 0; i < retries; i++) {
+                try {
+                    const res = await fetch(url, options);
+                    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+                    return res;
+                } catch (err) {
+                    if (i === retries - 1) throw err;
+                    await new Promise(r => setTimeout(r, delays[i]));
+                }
+            }
+        }
+
+        // --- AI DREAM INTERPRETER FEATURE ---
+        async function decifrarSonho() {
+            const inputEl = document.getElementById('dream-input');
+            const dreamText = inputEl.value.trim();
+            const btn = document.getElementById('btn-decifrar');
+            const resultArea = document.getElementById('dream-result-area');
+
+            if (!dreamText) {
+                showToast("Por favor, descreva seu sonho primeiro!");
+                return;
+            }
+
+            btn.innerHTML = `<span class="spinner"></span> CONSULTANDO ORÁCULO...`;
+            btn.disabled = true;
+            resultArea.classList.add('hidden');
+
+            const prompt = `O usuário está tentando jogar no Jogo do Bicho brasileiro e teve o seguinte sonho: "${dreamText}". 
+Baseado nas crenças populares e na cultura do Jogo do Bicho no Brasil, qual animal (dos 25 grupos tradicionais) melhor representa a energia, o simbolismo ou os elementos deste sonho?
+Responda ESTRITAMENTE no formato JSON com as chaves exatas e sem markdown externo:
+{
+  "animal": "Nome do animal escolhido",
+  "grupo": numero_inteiro_do_grupo,
+  "explicacao": "Uma breve explicação de no máximo 2 linhas justificando misticamente a relação entre o sonho e o animal."
+}`;
+
+            try {
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+                const payload = {
+                    contents: [{ parts: [{ text: prompt }] }],
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        responseSchema: {
+                            type: "OBJECT",
+                            properties: {
+                                animal: { type: "STRING" },
+                                grupo: { type: "INTEGER" },
+                                explicacao: { type: "STRING" }
+                            },
+                            required: ["animal", "grupo", "explicacao"]
+                        }
+                    }
+                };
+
+                const response = await fetchWithRetry(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+                const resultText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                
+                if(!resultText) throw new Error("Empty response from AI");
+                
+                const result = JSON.parse(resultText);
+                mostrarResultadoIA(result.grupo, result.explicacao);
+
+            } catch (error) {
+                console.error("Erro na API Gemini:", error);
+                showToast("Erro de conexão mística. Tente novamente!");
+            } finally {
+                btn.innerHTML = `✨ DECIFRAR MEU SONHO ✨`;
+                btn.disabled = false;
+            }
+        }
+
+        function mostrarResultadoIA(grupoId, explicacao) {
+            const bicho = tabelaBichos.find(b => b.grupo === grupoId) || tabelaBichos[0];
+            const centenaMilhar = Math.floor(Math.random() * 100).toString().padStart(2, '0');
+            const dezena = bicho.dezenas[Math.floor(Math.random() * bicho.dezenas.length)];
+            ultimoPalpiteSonho = centenaMilhar + dezena;
+
+            document.getElementById('dream-animal-name').innerText = `Grupo ${bicho.grupo} • ${bicho.nome}`;
+            document.getElementById('dream-animal-emoji').innerText = bicho.emoji;
+            document.getElementById('dream-explanation').innerText = `"${explicacao}"`;
+            
+            const luckyNumberEl = document.getElementById('dream-lucky-number');
+            luckyNumberEl.innerText = ultimoPalpiteSonho;
+            
+            luckyNumberEl.classList.remove('animate-fade');
+            void luckyNumberEl.offsetWidth; 
+            luckyNumberEl.classList.add('animate-fade');
+
+            document.getElementById('dream-result-area').classList.remove('hidden');
+            showToast("✨ Oráculo revelou seu palpite!");
+        }
+
+        async function copiarPalpiteSonho() {
+            if (!ultimoPalpiteSonho) return;
+            try {
+                await navigator.clipboard.writeText(ultimoPalpiteSonho);
+                showToast("Milhar copiada!");
+            } catch (e) {
+                showToast("Erro ao copiar.");
+            }
+        }
+
+        // --- GENERATION LOGIC (Standard Generator) ---
+        function getGrupo(milhar) {
+            const dz = parseInt(milhar.slice(-2));
+            return dz === 0 ? 25 : Math.ceil(dz / 4);
+        }
+
+        function gerarMilharBase() {
+            return Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+        }
+
+        function isValidByFilter(milhar, filter, mode, bichoId) {
+            const g = getGrupo(milhar);
+            if (mode === 'bicho') return g === bichoId;
+            if (mode === 'atrasados') return gruposAtrasados.includes(g);
+            if (filter === 'todos') return true;
+            if (filter === 'quentes') return gruposQuentes.includes(g);
+            if (filter === 'atrasados') return gruposAtrasados.includes(g);
+            if (filter === 'pares') return g % 2 === 0;
+            if (filter === 'impares') return g % 2 !== 0;
+            return true;
+        }
+
+        async function processoGerar() {
+            const btn = document.getElementById('gerarBtn');
+            const wrap = document.getElementById('palpitesWrapper');
+            const qtd = parseInt(document.getElementById('quantidade').value);
+            
+            if (genMode === 'bicho' && !bichoSelecionadoId) {
+                showToast("Selecione um bicho na lista primeiro!");
+                return;
+            }
+
+            btn.innerHTML = `<span class="spinner"></span> GERANDO...`;
+            btn.disabled = true;
+            wrap.innerHTML = `<span class="text-[#88aa99] text-xs animate-pulse">Cruzando dados para ${nomesLoterias[loteriaSelecionada]}...</span>`;
+
+            await new Promise(r => setTimeout(r, 1000)); // Simulando busca na loteria específica
+
+            const palpites = [];
+            let tentativas = 0;
+            while(palpites.length < qtd && tentativas < 5000) {
+                const m = gerarMilharBase();
+                if(isValidByFilter(m, genFilter, genMode, bichoSelecionadoId)) {
+                    if(!palpites.includes(m)) palpites.push(m);
+                }
+                tentativas++;
+            }
+            
+            ultimosPalpites = palpites;
+            
+            wrap.innerHTML = '';
+            palpites.forEach((p, i) => {
+                setTimeout(() => {
+                    const chip = document.createElement('div');
+                    chip.className = 'bg-[#00ff88]/10 border border-[#00ff88]/50 text-[#00ff88] px-3 py-1.5 rounded-lg font-mono font-bold text-lg animate-fade shadow-[0_0_10px_rgba(0,255,136,0.1)]';
+                    chip.innerText = p;
+                    wrap.appendChild(chip);
+                }, i * 50);
+            });
+
+            let c = parseFloat(document.getElementById('daily-count').innerText);
+            document.getElementById('daily-count').innerText = (c + 0.1).toFixed(1) + 'k';
+
+            setTimeout(() => {
+                btn.innerHTML = `✨ GERAR MILHARES DA SORTE ✨`;
+                btn.disabled = false;
+                showToast(`Milhares otimizadas para ${nomesLoterias[loteriaSelecionada]}!`);
+            }, palpites.length * 50 + 200);
+        }
+
+        // --- RENDERERS ---
+        function renderAnimalGrid() {
+            const grid = document.getElementById('animaisGrid');
+            if (grid.children.length > 0 && !bichoSelecionadoId) return; 
+            grid.innerHTML = '';
+            tabelaBichos.forEach(b => {
+                const isSel = bichoSelecionadoId === b.grupo;
+                const div = document.createElement('div');
+                div.className = `flex flex-col items-center justify-center p-2 rounded-xl cursor-pointer text-[10px] font-bold border transition-colors ${isSel ? 'bg-[#00ff88]/20 border-[#00ff88] text-[#00ff88]' : 'bg-[#020a07] border-[#00331c] text-[#88aa99] hover:border-[#00ff88]/50'}`;
+                div.innerHTML = `<span class="text-lg mb-0.5">${b.emoji}</span><span class="truncate w-full text-center">${b.nome}</span>`;
+                div.onclick = () => {
+                    bichoSelecionadoId = b.grupo;
+                    renderAnimalGrid();
+                };
+                grid.appendChild(div);
+            });
+        }
+
+        function renderTabelaCompleta() {
+            const grid = document.getElementById('grid-tabela-ref');
+            tabelaBichos.forEach(b => {
+                const div = document.createElement('div');
+                div.className = 'bg-[#020a07] border border-[#00331c] p-2 rounded-xl flex flex-col items-center';
+                div.innerHTML = `
+                    <div class="flex justify-between w-full text-[10px] text-[#88aa99] mb-1">
+                        <span>G${b.grupo.toString().padStart(2,'0')}</span> <span>${b.emoji}</span>
+                    </div>
+                    <div class="font-bold text-[#e2e8f0] text-xs uppercase mb-1">${b.nome}</div>
+                    <div class="grid grid-cols-2 gap-1 w-full text-[10px] font-mono text-[#00ff88] text-center">
+                        ${b.dezenas.map(d => `<span class="bg-[#05140d] rounded">${d}</span>`).join('')}
+                    </div>
+                `;
+                grid.appendChild(div);
+            });
+        }
+
+        function gerarNumeroDia() {
+            const num = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+            const el = document.getElementById('numero-dia');
+            el.classList.remove('animate-fade');
+            void el.offsetWidth; 
+            el.innerText = num;
+            el.classList.add('animate-fade');
+        }
+
+        function renderCharts() {
+            Chart.defaults.color = '#88aa99';
+            Chart.defaults.font.family = "'Inter', sans-serif";
+
+            new Chart(document.getElementById('chartAtrasados'), {
+                type: 'bar',
+                data: {
+                    labels: ['Burro 🐴', 'Jacaré 🐊', 'Pavão 🦚', 'Águia 🦅', 'Camelo 🐪'],
+                    datasets: [{
+                        data: [42, 35, 28, 25, 21],
+                        backgroundColor: '#00ff88',
+                        borderRadius: 4,
+                        barPercentage: 0.6
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { border: {display: false}, grid: {color: '#00331c'} },
+                        x: { border: {display: false}, grid: {display: false} }
+                    }
+                }
+            });
+
+            new Chart(document.getElementById('chartQuentes'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Cachorro', 'Gato', 'Touro', 'Vaca', 'Outros'],
+                    datasets: [{
+                        data: [15, 12, 10, 8, 55],
+                        backgroundColor: ['#00ff88', '#00cc66', '#00994d', '#006633', '#020a07'],
+                        borderColor: '#05140d',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false, cutout: '75%',
+                    plugins: { legend: { position: 'right', labels: {boxWidth: 10, color: '#e2e8f0'} } }
+                }
+            });
+        }
+
+        // --- EVENT LISTENERS ---
+        document.getElementById('gerarBtn').addEventListener('click', processoGerar);
+        
+        document.getElementById('copiarBtn').addEventListener('click', async () => {
+            if (!ultimosPalpites.length) return showToast("Gere palpites primeiro!");
+            try {
+                await navigator.clipboard.writeText(ultimosPalpites.join(', '));
+                showToast("Copiado para a área de transferência!");
+            } catch (e) {
+                showToast("Erro ao copiar.");
+            }
+        });
+
+        setInterval(() => {
+            const el = document.getElementById('online-count');
+            el.innerText = Math.floor(Math.random() * 20) + 15;
+        }, 5000);
+
+        // Init
+        gerarNumeroDia();
+
+    </script>
+</body>
+</html>
