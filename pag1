@@ -379,7 +379,7 @@
 
     <script>
         // --- API KEY CONFIGURATION ---
-        const apiKey = ""; // API Key is injected here at runtime
+        const apiKey = "AIzaSyC6skcmuoJyoDk3z6PA0sOy-WGeXKDRsEI"; // API Key is injected here at runtime
         
         // --- DATA ---
         const tabelaBichos = [
