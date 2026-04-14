@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="description" content="Gerador de Milhares PRO - Análise e Palpites da Sorte">
-    <title>Painel PRO | Gerador Neon & IA</title>
+    <title>Painel PRO | Gerador Neon</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -143,17 +143,14 @@
         <!-- Navbar -->
         <nav class="bg-[#05140d] glow-border rounded-full p-2 flex justify-between items-center px-4 w-full">
             <div class="font-extrabold text-sm text-[#00ff88] hidden sm:block mr-2">JB PRO</div>
-            <div class="flex gap-1 sm:gap-2 overflow-x-auto no-scrollbar w-full sm:w-auto">
-                <button onclick="changeTab('gerador')" id="tab-gerador" class="pill-btn active px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1">
+            <div class="flex gap-1 sm:gap-2 overflow-x-auto no-scrollbar w-full sm:w-auto justify-center">
+                <button onclick="changeTab('gerador')" id="tab-gerador" class="pill-btn active px-4 py-1.5 rounded-full text-xs font-bold flex items-center gap-1">
                     ⚡ GERAR
                 </button>
-                <button onclick="changeTab('sonhos')" id="tab-sonhos" class="pill-btn px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1">
-                    ✨ SONHOS
-                </button>
-                <button onclick="changeTab('estatisticas')" id="tab-estatisticas" class="pill-btn px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1">
+                <button onclick="changeTab('estatisticas')" id="tab-estatisticas" class="pill-btn px-4 py-1.5 rounded-full text-xs font-bold flex items-center gap-1">
                     📊 DADOS
                 </button>
-                <button onclick="changeTab('tabela')" id="tab-tabela" class="pill-btn px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1">
+                <button onclick="changeTab('tabela')" id="tab-tabela" class="pill-btn px-4 py-1.5 rounded-full text-xs font-bold flex items-center gap-1">
                     📜 TABELA
                 </button>
             </div>
@@ -284,61 +281,6 @@
             </div>
         </main>
 
-        <!-- SEC: SONHOS (Gemini AI Feature) -->
-        <main id="sec-sonhos" class="w-full hidden animate-fade">
-            <div class="bg-[#05140d] glow-border rounded-3xl p-5 flex flex-col gap-5">
-                <div class="text-center">
-                    <h1 class="text-lg font-black text-[#00ff88] tracking-widest mb-2 text-neon flex items-center justify-center gap-2">
-                        💭 ORÁCULO DE SONHOS 💭
-                    </h1>
-                    <div class="inline-flex items-center gap-1 bg-[#020a07] border border-[#00ff88]/30 rounded-full px-3 py-1 text-[10px] sm:text-xs text-[#88aa99]">
-                        <span>Powered by Gemini AI</span>
-                        <span>✨</span>
-                    </div>
-                </div>
-                
-                <p class="text-[11px] text-[#88aa99] text-center mb-2">
-                    Descreva o seu sonho e a Inteligência Artificial revelará o seu animal da sorte e os números místicos.
-                </p>
-
-                <textarea id="dream-input" rows="4" class="neon-input w-full rounded-xl p-3 text-sm resize-none" placeholder="Com o que você sonhou hoje? Ex: Sonhei com muita água e uma chave caindo num poço..."></textarea>
-
-                <button id="btn-decifrar" onclick="decifrarSonho()" class="action-btn-green w-full py-3.5 rounded-xl font-bold text-sm flex justify-center items-center gap-2">
-                    ✨ DECIFRAR MEU SONHO ✨
-                </button>
-
-                <!-- AI Result Area -->
-                <div id="dream-result-area" class="hidden flex flex-col gap-3 mt-2">
-                    <div class="bg-[#020a07] border border-[#00ff88]/50 rounded-2xl p-4 relative overflow-hidden">
-                        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#00ff88] to-transparent opacity-50"></div>
-                        
-                        <div class="flex justify-between items-start mb-3">
-                            <div>
-                                <div class="text-[10px] font-bold text-[#88aa99] uppercase tracking-wider mb-1">O Animal Revelado</div>
-                                <div class="text-xl font-black text-[#00ff88] uppercase" id="dream-animal-name">--</div>
-                            </div>
-                            <div class="text-4xl" id="dream-animal-emoji">🔮</div>
-                        </div>
-
-                        <p class="text-[11px] text-[#e2e8f0] italic border-l-2 border-[#00331c] pl-3 py-1 mb-4" id="dream-explanation">
-                            Aguardando seu sonho...
-                        </p>
-
-                        <div class="text-[10px] font-bold text-[#00ff88] uppercase tracking-wider mb-2 text-center">Milhar Mística Sugerida</div>
-                        <div class="flex justify-center">
-                            <div class="bg-[#00ff88]/10 border border-[#00ff88] text-[#00ff88] px-6 py-2 rounded-xl font-mono font-black text-2xl tracking-widest shadow-[0_0_15px_rgba(0,255,136,0.2)]" id="dream-lucky-number">
-                                0000
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <button onclick="copiarPalpiteSonho()" class="w-full bg-[#05140d] hover:bg-[#00ff88]/10 border border-[#00331c] text-[#88aa99] hover:text-[#00ff88] py-2 rounded-lg text-[11px] font-bold transition-all">
-                        📋 COPIAR MILHAR
-                    </button>
-                </div>
-            </div>
-        </main>
-
         <!-- SEC: ESTATÍSTICAS -->
         <main id="sec-estatisticas" class="w-full hidden animate-fade">
             <div class="bg-[#05140d] glow-border rounded-3xl p-5 flex flex-col gap-6">
@@ -378,9 +320,6 @@
     </div>
 
     <script>
-        // --- API KEY CONFIGURATION ---
-        const apiKey = "AIzaSyC6skcmuoJyoDk3z6PA0sOy-WGeXKDRsEI"; // API Key is injected here at runtime
-        
         // --- DATA ---
         const tabelaBichos = [
             { grupo: 1, nome: "Avestruz", emoji: "🦅", dezenas: ["01", "02", "03", "04"] },
@@ -430,12 +369,11 @@
         let genFilter = 'todos'; 
         let bichoSelecionadoId = null;
         let ultimosPalpites = [];
-        let ultimoPalpiteSonho = "";
         let chartsInit = false;
 
         // --- UI UPDATES ---
         function changeTab(tab) {
-            ['gerador', 'sonhos', 'estatisticas', 'tabela'].forEach(t => {
+            ['gerador', 'estatisticas', 'tabela'].forEach(t => {
                 document.getElementById(`sec-${t}`).classList.add('hidden');
                 document.getElementById(`tab-${t}`).classList.remove('active', 'glow-border-active');
             });
@@ -509,119 +447,7 @@
             setTimeout(() => toast.style.opacity = '0', 2500);
         }
 
-        // --- GEMINI API HELPERS ---
-        async function fetchWithRetry(url, options, retries = 5) {
-            const delays = [1000, 2000, 4000, 8000, 16000];
-            for (let i = 0; i < retries; i++) {
-                try {
-                    const res = await fetch(url, options);
-                    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-                    return res;
-                } catch (err) {
-                    if (i === retries - 1) throw err;
-                    await new Promise(r => setTimeout(r, delays[i]));
-                }
-            }
-        }
-
-        // --- AI DREAM INTERPRETER FEATURE ---
-        async function decifrarSonho() {
-            const inputEl = document.getElementById('dream-input');
-            const dreamText = inputEl.value.trim();
-            const btn = document.getElementById('btn-decifrar');
-            const resultArea = document.getElementById('dream-result-area');
-
-            if (!dreamText) {
-                showToast("Por favor, descreva seu sonho primeiro!");
-                return;
-            }
-
-            btn.innerHTML = `<span class="spinner"></span> CONSULTANDO ORÁCULO...`;
-            btn.disabled = true;
-            resultArea.classList.add('hidden');
-
-            const prompt = `O usuário está tentando jogar no Jogo do Bicho brasileiro e teve o seguinte sonho: "${dreamText}". 
-Baseado nas crenças populares e na cultura do Jogo do Bicho no Brasil, qual animal (dos 25 grupos tradicionais) melhor representa a energia, o simbolismo ou os elementos deste sonho?
-Responda ESTRITAMENTE no formato JSON com as chaves exatas e sem markdown externo:
-{
-  "animal": "Nome do animal escolhido",
-  "grupo": numero_inteiro_do_grupo,
-  "explicacao": "Uma breve explicação de no máximo 2 linhas justificando misticamente a relação entre o sonho e o animal."
-}`;
-
-            try {
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
-                const payload = {
-                    contents: [{ parts: [{ text: prompt }] }],
-                    generationConfig: {
-                        responseMimeType: "application/json",
-                        responseSchema: {
-                            type: "OBJECT",
-                            properties: {
-                                animal: { type: "STRING" },
-                                grupo: { type: "INTEGER" },
-                                explicacao: { type: "STRING" }
-                            },
-                            required: ["animal", "grupo", "explicacao"]
-                        }
-                    }
-                };
-
-                const response = await fetchWithRetry(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                const data = await response.json();
-                const resultText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-                
-                if(!resultText) throw new Error("Empty response from AI");
-                
-                const result = JSON.parse(resultText);
-                mostrarResultadoIA(result.grupo, result.explicacao);
-
-            } catch (error) {
-                console.error("Erro na API Gemini:", error);
-                showToast("Erro de conexão mística. Tente novamente!");
-            } finally {
-                btn.innerHTML = `✨ DECIFRAR MEU SONHO ✨`;
-                btn.disabled = false;
-            }
-        }
-
-        function mostrarResultadoIA(grupoId, explicacao) {
-            const bicho = tabelaBichos.find(b => b.grupo === grupoId) || tabelaBichos[0];
-            const centenaMilhar = Math.floor(Math.random() * 100).toString().padStart(2, '0');
-            const dezena = bicho.dezenas[Math.floor(Math.random() * bicho.dezenas.length)];
-            ultimoPalpiteSonho = centenaMilhar + dezena;
-
-            document.getElementById('dream-animal-name').innerText = `Grupo ${bicho.grupo} • ${bicho.nome}`;
-            document.getElementById('dream-animal-emoji').innerText = bicho.emoji;
-            document.getElementById('dream-explanation').innerText = `"${explicacao}"`;
-            
-            const luckyNumberEl = document.getElementById('dream-lucky-number');
-            luckyNumberEl.innerText = ultimoPalpiteSonho;
-            
-            luckyNumberEl.classList.remove('animate-fade');
-            void luckyNumberEl.offsetWidth; 
-            luckyNumberEl.classList.add('animate-fade');
-
-            document.getElementById('dream-result-area').classList.remove('hidden');
-            showToast("✨ Oráculo revelou seu palpite!");
-        }
-
-        async function copiarPalpiteSonho() {
-            if (!ultimoPalpiteSonho) return;
-            try {
-                await navigator.clipboard.writeText(ultimoPalpiteSonho);
-                showToast("Milhar copiada!");
-            } catch (e) {
-                showToast("Erro ao copiar.");
-            }
-        }
-
-        // --- GENERATION LOGIC (Standard Generator) ---
+        // --- GENERATION LOGIC ---
         function getGrupo(milhar) {
             const dz = parseInt(milhar.slice(-2));
             return dz === 0 ? 25 : Math.ceil(dz / 4);
